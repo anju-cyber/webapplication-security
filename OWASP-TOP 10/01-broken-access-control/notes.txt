@@ -1,0 +1,506 @@
+Broken Access Control (BAC) — Web Pentesting Notes
+One of the MOST IMPORTANT vulnerabilities in web security.
+From OWASP, Broken Access Control has remained one of the top risks because it often leads directly to:
+•	Account takeover 
+•	Admin access 
+•	Sensitive data exposure 
+•	Full application compromise 
+________________________________________
+1. What is Access Control?
+Access Control decides:
+WHO can access WHAT
+and
+WHAT actions they are allowed to perform
+________________________________________
+Simple Example
+Normal user:
+- View own profile
+- Edit own data
+
+Admin:
+- Manage all users
+- Delete accounts
+- Access admin panel
+________________________________________
+2. What is Broken Access Control?
+Broken Access Control happens when application fails to properly enforce permissions.
+Result:
+User can:
+•	access unauthorized data 
+•	perform unauthorized actions 
+•	become admin 
+•	bypass restrictions 
+________________________________________
+Simple Definition
+Application trusts user too much.
+________________________________________
+3. Authentication vs Authorization
+VERY IMPORTANT.
+________________________________________
+Authentication	Authorization
+Who are you?	What can you access?
+Login process	Permission checks
+Example: password	Example: admin access
+________________________________________
+Example
+Login successful = Authentication
+But:
+Can user access /admin? = Authorization
+________________________________________
+4. Access Control Models
+________________________________________
+A. Role-Based Access Control (RBAC)
+Permissions based on roles.
+________________________________________
+Example
+Role	Permissions
+User	View own profile
+Moderator	Manage posts
+Admin	Full control
+________________________________________
+B. Attribute-Based Access Control (ABAC)
+Access depends on:
+•	user attributes 
+•	environment 
+•	conditions 
+________________________________________
+Example
+Employee can access payroll only during office hours.
+________________________________________
+C. Discretionary Access Control (DAC)
+Owner controls permissions.
+________________________________________
+Example
+Google Drive sharing.
+________________________________________
+D. Mandatory Access Control (MAC)
+Strict centralized control.
+Used in:
+•	military 
+•	government systems 
+________________________________________
+5. Main Types of Broken Access Control
+VERY IMPORTANT.
+________________________________________
+Categories
+1.	Vertical Privilege Escalation 
+2.	Horizontal Privilege Escalation 
+3.	IDOR 
+4.	Forced Browsing 
+5.	Missing Access Control 
+6.	Parameter-Based Access Control 
+7.	API Authorization Flaws 
+8.	Client-Side Access Control 
+9.	JWT Role Manipulation 
+10.	CORS Misconfiguration 
+11.	File Access Issues 
+12.	Function-Level Access Control 
+13.	Object-Level Access Control 
+14.	Method-Based Access Control 
+15.	Multi-Step Process Bypass 
+________________________________________
+6. Vertical Privilege Escalation
+User becomes higher privileged user.
+________________________________________
+Example
+Normal user accesses:
+/admin
+and gets admin panel.
+________________________________________
+Example Flow
+User account
+     ↓
+Access admin endpoint
+     ↓
+Admin access gained
+________________________________________
+Causes
+•	missing backend checks 
+•	frontend-only restrictions 
+•	hidden admin URLs 
+________________________________________
+Risks
+CRITICAL.
+Can lead to:
+•	full system compromise 
+•	deleting users 
+•	viewing all data 
+________________________________________
+Mitigation
+Always validate roles server-side.
+________________________________________
+7. Horizontal Privilege Escalation
+User accesses another user's data.
+________________________________________
+Example
+GET /profile?id=1001
+Change to:
+GET /profile?id=1002
+________________________________________
+Result
+Access another user's account.
+________________________________________
+Risks
+Sensitive data exposure.
+________________________________________
+Mitigation
+Verify ownership server-side.
+________________________________________
+8. IDOR (Insecure Direct Object Reference)
+MOST IMPORTANT BAC vulnerability.
+________________________________________
+Concept
+Application exposes internal object references directly.
+Example:
+•	user IDs 
+•	file IDs 
+•	order IDs 
+without proper authorization checks.
+________________________________________
+Example
+GET /invoice/1001
+Change to:
+GET /invoice/1002
+and access another invoice.
+________________________________________
+Why Dangerous?
+Easy to exploit.
+Often exposes:
+•	PII 
+•	financial data 
+•	medical records 
+•	internal documents 
+________________________________________
+Types of IDOR
+________________________________________
+A. Numeric IDOR
+?id=1
+?id=2
+________________________________________
+B. UUID IDOR
+?id=6f8a-123a-abc
+Still vulnerable if auth missing.
+________________________________________
+C. File IDOR
+/download?file=invoice.pdf
+________________________________________
+D. API IDOR
+GET /api/user/1002
+________________________________________
+Mitigation
+Never trust object IDs alone.
+Always verify:
+Does this user own this object?
+________________________________________
+9. Forced Browsing
+Accessing hidden/restricted pages directly.
+________________________________________
+Example
+/admin
+/debug
+/internal
+________________________________________
+Risks
+Hidden functionality exposed.
+________________________________________
+Mitigation
+Do not rely on hidden URLs.
+Enforce backend authorization.
+________________________________________
+10. Missing Access Control
+Application forgets permission checks.
+________________________________________
+Example
+Delete endpoint:
+POST /deleteUser
+No authorization validation.
+________________________________________
+Risks
+Anyone can perform sensitive actions.
+________________________________________
+Mitigation
+Protect every sensitive endpoint.
+________________________________________
+11. Client-Side Access Control
+Frontend controls permissions.
+VERY common beginner mistake.
+________________________________________
+Example
+JavaScript hides admin button:
+if(role=="admin")
+But backend never validates.
+________________________________________
+Risks
+Attacker bypasses frontend easily.
+________________________________________
+Mitigation
+Authorization MUST happen server-side.
+________________________________________
+12. Parameter-Based Access Control
+Application trusts user-controlled parameters.
+________________________________________
+Example
+{
+  "role":"user"
+}
+Changed to:
+{
+  "role":"admin"
+}
+________________________________________
+Risks
+Privilege escalation.
+________________________________________
+Mitigation
+Never trust client-supplied roles.
+________________________________________
+13. API Authorization Flaws
+EXTREMELY common today.
+________________________________________
+Example
+GET /api/admin/users
+API lacks authorization checks.
+________________________________________
+Risks
+Massive data exposure.
+________________________________________
+Important API Access Control Types
+Type	Meaning
+Object-Level	Access to object
+Function-Level	Access to functionality
+Property-Level	Access to fields
+________________________________________
+14. Broken Object-Level Authorization (BOLA)
+API version of IDOR.
+VERY important.
+________________________________________
+Example
+GET /api/orders/1001
+Change:
+GET /api/orders/1002
+________________________________________
+Risks
+One of most common API vulnerabilities.
+________________________________________
+15. Function-Level Authorization
+User accesses unauthorized function.
+________________________________________
+Example
+POST /api/admin/delete-user
+Normal user can access it.
+________________________________________
+Risks
+Admin action abuse.
+________________________________________
+16. Method-Based Access Control Bypass
+Different HTTP methods behave differently.
+________________________________________
+Example
+GET /admin → blocked
+POST /admin → allowed
+________________________________________
+Risks
+Method tampering bypass.
+________________________________________
+Mitigation
+Validate ALL methods.
+________________________________________
+17. Multi-Step Process Bypass
+Application validates only some steps.
+________________________________________
+Example
+Step1 → Auth
+Step2 → Payment
+Step3 → Download
+Attacker directly accesses:
+Step3
+________________________________________
+Risks
+Workflow bypass.
+________________________________________
+Mitigation
+Validate authorization at every step.
+________________________________________
+18. JWT Role Manipulation
+JWT contains user role.
+________________________________________
+Example
+{
+  "role":"user"
+}
+Changed to:
+{
+  "role":"admin"
+}
+If signature validation weak:
+•	privilege escalation possible 
+________________________________________
+Mitigation
+Proper JWT validation.
+________________________________________
+19. File Access Control Issues
+Users access unauthorized files.
+________________________________________
+Example
+/uploads/user1/report.pdf
+Change path:
+/uploads/admin/secret.pdf
+________________________________________
+Risks
+Sensitive file exposure.
+________________________________________
+Mitigation
+Protect file authorization.
+________________________________________
+20. CORS & Access Control
+Misconfigured CORS may expose APIs.
+________________________________________
+Example
+Access-Control-Allow-Origin: *
+with credentials enabled.
+________________________________________
+Risks
+Cross-origin data theft.
+________________________________________
+21. Common Causes of Broken Access Control
+________________________________________
+Cause	Example
+Missing checks	No authorization validation
+Frontend-only checks	Hidden button only
+Trusting parameters	role=admin
+Weak APIs	No object ownership checks
+Predictable IDs	Sequential IDs
+Inconsistent validation	Some endpoints protected
+________________________________________
+22. Real-World Impacts
+Vulnerability	Impact
+IDOR	Data leakage
+Vertical Escalation	Admin takeover
+Missing Access Control	Full compromise
+API Authorization Flaw	Mass exposure
+Forced Browsing	Internal access
+________________________________________
+23. Broken Access Control Testing Methodology
+VERY IMPORTANT.
+________________________________________
+Step 1 — Map Roles
+Identify:
+•	guest 
+•	user 
+•	admin 
+•	moderator 
+________________________________________
+Step 2 — Compare Requests
+Use:
+•	Burp Suite Repeater 
+•	Comparer 
+Observe differences.
+________________________________________
+Step 3 — Test IDOR
+Change:
+•	IDs 
+•	UUIDs 
+•	filenames 
+•	object references 
+________________________________________
+Step 4 — Test Role Escalation
+Modify:
+•	role parameters 
+•	JWT claims 
+•	cookies 
+________________________________________
+Step 5 — Test Hidden Endpoints
+Try:
+/admin
+/internal
+/manage
+/api/admin
+________________________________________
+Step 6 — Test HTTP Methods
+Try:
+•	GET 
+•	POST 
+•	PUT 
+•	PATCH 
+•	DELETE 
+________________________________________
+Step 7 — Test APIs
+Focus heavily on:
+•	object ownership 
+•	admin APIs 
+•	mobile APIs 
+________________________________________
+24. Pentester Mindset
+Never think:
+"User is logged in, so access is okay."
+Think:
+"Should THIS user access THIS resource THIS way?"
+That is the core of authorization testing.
+________________________________________
+25. Real Attack Chain Example
+Login as normal user
+        ↓
+Find predictable user IDs
+        ↓
+Exploit IDOR
+        ↓
+Access admin profile
+        ↓
+Steal admin token
+        ↓
+Admin takeover
+________________________________________
+26. Important Practical Skills
+Master:
+•	IDOR testing 
+•	API authorization testing 
+•	JWT analysis 
+•	role manipulation 
+•	method tampering 
+•	Burp Repeater 
+•	access matrix testing 
+________________________________________
+27. Access Control Matrix (VERY IMPORTANT)
+Professional testing method.
+________________________________________
+Example
+Function	Guest	User	Admin
+View profile	❌	✅	✅
+Edit own profile	❌	✅	✅
+Delete users	❌	❌	✅
+Now test violations.
+________________________________________
+28. Quick Short Notes
+Vulnerability	Short Explanation
+Vertical Escalation	User becomes admin
+Horizontal Escalation	User accesses another user
+IDOR	Object access without authorization
+Forced Browsing	Access hidden pages directly
+Missing Access Control	No permission checks
+Client-Side Access Control	Frontend-only protection
+JWT Role Manipulation	Change role in token
+API Authorization Flaw	APIs missing auth checks
+Method Tampering	Different HTTP methods bypass restrictions
+________________________________________
+29. Most Important BAC Vulnerabilities to Master FIRST
+Priority order:
+1.	IDOR/BOLA 
+2.	Vertical Privilege Escalation 
+3.	Horizontal Privilege Escalation 
+4.	API Authorization Flaws 
+5.	Method Tampering 
+6.	JWT Role Manipulation 
+7.	Multi-Step Workflow Bypass 
+8.	Forced Browsing 
+________________________________________
+30. Most Important Rule
+Never trust the client.
+Everything from user:
+•	parameters 
+•	cookies 
+•	JWTs 
+•	requests 
+•	roles 
+•	headers 
+can be manipulated.
+
