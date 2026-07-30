@@ -1,57 +1,158 @@
-# Lab Report: User ID Controlled by Request Parameter (Unpredictable User IDs)
+# Lab 01 - Insecure Direct Object Reference (IDOR) Using Predictable User IDs
 
-**Category:** A01:2025 – Broken Access Control  
-**Severity:** High  
-**Target:** User Account Management API / Profile Endpoint  
-**Platform:** PortSwigger Web Security Academy  
+## Lab Information
 
----
-
-## 1. Executive Summary
-An Insecure Direct Object Reference (IDOR) vulnerability was identified in the user account module. The application uses unpredictable Globally Unique Identifiers (GUIDs) to reference user accounts, relying on **security through obscurity**. However, it fails to perform server-side authorization checks when loading account data. Once an attacker obtains a target user's GUID (e.g., from a public blog post), they can swap the ID in their request to view and retrieve sensitive data belonging to that user.
-
----
-
-## 2. Technical Overview
-
-| Attribute | Details |
-| --- | --- |
-| **Vulnerability Type** | Insecure Direct Object Reference (IDOR) |
-| **Affected Parameter** | `id` (Query Parameter) |
-| **Authentication Level** | Low-Privileged User |
-| **Impact** | Unauthorized Access / Sensitive Data Disclosure |
+| Field | Value |
+|-------|-------|
+| Category | Broken Access Control |
+| Vulnerability | Insecure Direct Object Reference (IDOR) |
+| Platform | PortSwigger Web Security Academy |
+| Difficulty | Apprentice |
+| Status | ✅ Solved |
 
 ---
 
-## 3. Methodology & Steps to Reproduce
+## Objective
 
-### Step 1: Identifier Harvesting
-1. Navigated to the public blog section of the application.
-2. Located a post authored by the target user (`carlos`).
-3. Clicked on author details / profile link and observed the URL string.
-4. Extracted and recorded the victim's unpredictable user ID (`carlos-guid-here`).
-
-> **Observation:** The application exposes user GUIDs publicly in blog post metadata.
-
-<!-- Screenshot Placeholder: Add your screenshot showing Carlos's GUID from the blog post -->
-![Victim GUID Harvest](./screenshots/lab01-guid-harvest.png)
+Identify an Insecure Direct Object Reference (IDOR) vulnerability by manipulating a predictable user identifier and retrieve another user's API key.
 
 ---
 
-### Step 2: Authentication & Session Baseline
-1. Logged into the application using low-privileged test credentials (`wiener:peter`).
-2. Navigated to the **My Account** section (`/my-account?id=wiener-guid-here`).
-3. Observed that the user profile details are loaded based directly on the `id` parameter provided in the request line.
+## Vulnerability Overview
 
-<!-- Screenshot Placeholder: Add your screenshot showing your own account request in Burp/Browser -->
-![Own Account Access](./screenshots/lab01-my-account.png)
+An Insecure Direct Object Reference (IDOR) occurs when an application exposes internal object identifiers without verifying whether the authenticated user is authorised to access the requested resource.
+
+Instead of enforcing server-side access control, the application trusts the value supplied by the client. If identifiers are predictable, an attacker can modify them to access resources belonging to other users.
 
 ---
 
-### Step 3: Parameter Tampering & Exploitation
-1. Intercepted the `/my-account` request in Burp Suite (or edited the URL directly in the browser).
-2. Replaced the `id` parameter value with `carlos`'s previously harvested GUID:
-   ```http
-   GET /my-account?id=<carlos-guid-here> HTTP/1.1
-   Host: target-app.web-security-academy.net
-   Cookie: session=<your-session-cookie>
+## Lab Scenario
+
+The application contains public blog posts authored by different users.
+
+Each author's profile contains a numeric user identifier that is exposed within the URL. After authenticating with valid credentials, the account page also references the logged-in user's identifier through the same parameter.
+
+Because the application fails to validate ownership of the requested resource, replacing the identifier with another user's ID exposes their account information.
+
+---
+
+## Tools Used
+
+- Burp Suite Community Edition
+- Mozilla Firefox
+- PortSwigger Web Security Academy
+
+---
+
+## Testing Steps
+
+### Step 1 – Browse the Blog
+
+Opened the application homepage and explored the available blog posts.
+
+---
+
+### Step 2 – Identify Carlos' User ID
+
+Selected Carlos' profile and observed that the profile URL contained a predictable numeric user ID.
+
+The identifier was noted for later testing.
+
+**Screenshot**
+
+```
+screenshots/lab01-home_page.png
+```
+
+```
+screenshots/lab01-guid-harvest.png
+```
+
+---
+
+### Step 3 – Log in to the Application
+
+Authenticated using the credentials provided by the lab.
+
+After login, navigated to the **My Account** page.
+
+**Screenshot**
+
+```
+screenshots/lab01-my-account.png
+```
+
+---
+
+### Step 4 – Test for IDOR
+
+Modified the `id` parameter in the account URL by replacing the current user's identifier with Carlos' user ID obtained earlier.
+
+The application returned Carlos' account information instead of denying access.
+
+---
+
+### Step 5 – Retrieve the API Key
+
+The response exposed Carlos' API key.
+
+The key was submitted to complete the lab.
+
+---
+
+## Result
+
+The application disclosed another user's sensitive account information without performing proper authorisation checks.
+
+The lab was successfully completed.
+
+**Screenshot**
+
+```
+screenshots/lab01-lab_solved.png
+```
+
+---
+
+# Impact
+
+Successful exploitation could allow an attacker to:
+
+- Access another user's profile
+- Retrieve sensitive information
+- Access API keys
+- View confidential account data
+- Perform horizontal privilege escalation
+
+---
+
+# Root Cause
+
+The application relied on a client-controlled identifier while failing to verify whether the authenticated user owned the requested resource.
+
+Authorisation checks were missing on the server side.
+
+---
+
+# Remediation
+
+- Perform server-side authorisation for every request.
+- Never rely on client-supplied object identifiers.
+- Verify that the authenticated user owns the requested resource.
+- Use indirect or unpredictable object identifiers where appropriate.
+- Apply the principle of least privilege.
+
+---
+
+# Key Learning
+
+This lab demonstrates that authentication alone is not sufficient to protect sensitive resources.
+
+Even when a user is logged in, every request must include proper server-side authorisation checks to ensure the requested object belongs to the authenticated user.
+
+---
+
+# References
+
+- OWASP Top 10 2025 – Broken Access Control
+- PortSwigger Web Security Academy – IDOR
