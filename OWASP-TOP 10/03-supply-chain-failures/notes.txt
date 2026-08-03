@@ -1,0 +1,410 @@
+OWASP Top 10 (2025) — A03: Software Supply Chain Failures
+Complete Notes for Theory + Interview + Practical Understanding
+________________________________________
+1. What is Software Supply Chain?
+Before understanding the vulnerability, understand the term:
+Software Supply Chain
+Think of software like a car.
+A car company does NOT manufacture:
+•	every bolt 
+•	every wire 
+•	every chip 
+Instead, it buys parts from suppliers.
+________________________________________
+Software Works the Same Way
+Developers use:
+•	libraries 
+•	frameworks 
+•	plugins 
+•	packages 
+•	containers 
+•	APIs 
+•	CI/CD tools 
+built by others.
+________________________________________
+Example
+Your application:
+My Website
+uses:
+React
+Node.js
+Express
+Bootstrap
+jQuery
+JWT Library
+Docker Image
+GitHub Actions
+Many external components.
+This entire ecosystem is called:
+Software Supply Chain
+________________________________________
+2. What is Software Supply Chain Failure?
+It occurs when:
+A dependency, package, tool, build system, or third-party component introduces security risk.
+The application itself may be secure.
+But one component in the chain is compromised.
+________________________________________
+Simple Definition
+Trusting software components without proper verification and security controls.
+________________________________________
+3. Why is this OWASP Top 10?
+Because modern applications are mostly:
+Assembled
+rather than:
+Written from scratch
+________________________________________
+Typical Web Application
+Developer-written code:
+10%
+Third-party code:
+90%
+Sometimes even more.
+________________________________________
+4. Real-Life Analogy
+Imagine:
+Restaurant serves safe food.
+But supplier sends contaminated vegetables.
+Customers get sick.
+Problem came from:
+Supply chain
+not restaurant.
+Same thing happens in software.
+________________________________________
+5. Common Supply Chain Components
+VERY IMPORTANT.
+________________________________________
+Open Source Libraries
+Examples:
+jQuery
+Lodash
+Log4j
+________________________________________
+Package Managers
+Examples:
+npm
+pip
+Maven
+________________________________________
+CI/CD Systems
+Examples:
+Jenkins
+GitHub Actions
+________________________________________
+Containers
+Examples:
+Docker images
+base images
+________________________________________
+Cloud Packages
+SDKs
+APIs
+Third-party services
+________________________________________
+6. Main Types of Supply Chain Failures
+For interviews and pentesting remember these 6.
+________________________________________
+Type 1 — Vulnerable Dependencies
+MOST COMMON.
+Application uses:
+Outdated library with known vulnerability.
+________________________________________
+Example
+Application uses:
+Log4j
+Old vulnerable version.
+Attacker exploits it.
+Application gets compromised.
+________________________________________
+Flow
+Developer installs package
+        ↓
+Package contains vulnerability
+        ↓
+Application deployed
+        ↓
+Attacker exploits dependency
+________________________________________
+Type 2 — Malicious Packages
+VERY IMPORTANT.
+Attacker uploads:
+Fake package
+to package repository.
+Developer installs it.
+________________________________________
+Example
+Developer intended:
+requests
+but installs:
+requestss
+(fake lookalike package)
+This is called:
+Typosquatting
+________________________________________
+Type 3 — Dependency Confusion
+VERY IMPORTANT INTERVIEW TOPIC.
+________________________________________
+What Happens?
+Company has internal package:
+company-auth
+Attacker uploads package with same name publicly.
+Build system downloads attacker's package.
+________________________________________
+Flow
+Internal package exists
+         ↓
+Attacker creates same package publicly
+         ↓
+Build process downloads attacker's package
+         ↓
+Malicious code executed
+________________________________________
+Type 4 — Compromised Build Pipeline
+VERY IMPORTANT.
+Attacker compromises:
+•	Jenkins 
+•	GitHub Actions 
+•	CI/CD server 
+Then injects malicious code into builds.
+________________________________________
+Flow
+Source Code
+      ↓
+CI/CD Pipeline
+      ↓
+Attacker modifies build
+      ↓
+Malicious application released
+________________________________________
+Type 5 — Compromised Updates
+Software update mechanism compromised.
+________________________________________
+Example
+Trusted application update server hacked.
+Users download:
+Malicious update
+thinking it is legitimate.
+________________________________________
+Type 6 — Vulnerable Container Images
+VERY COMMON TODAY.
+Developers pull:
+latest
+container image.
+Image contains:
+•	outdated packages 
+•	known CVEs 
+•	malware 
+________________________________________
+7. Most Famous Real-World Example
+Log4Shell
+One vulnerable dependency.
+Affected:
+•	cloud providers 
+•	governments 
+•	enterprises 
+worldwide.
+________________________________________
+Why Important?
+Application code wasn't vulnerable.
+Dependency was.
+________________________________________
+8. Dependency Confusion Explained Simply
+Imagine:
+Company uses internal package:
+secure-auth
+Attacker uploads:
+secure-auth
+to public repository.
+Build server accidentally installs attacker's version.
+Malicious code runs.
+________________________________________
+9. Typosquatting Explained
+Attacker relies on typing mistakes.
+Examples:
+requests
+requestss
+
+django
+djangoo
+
+numpy
+numpyy
+Developer installs wrong package.
+Malware executes.
+________________________________________
+10. What Can Attackers Gain?
+________________________________________
+Data Theft
+Steal:
+•	API keys 
+•	credentials 
+•	customer data 
+________________________________________
+Backdoors
+Insert hidden access.
+________________________________________
+RCE
+Remote Code Execution.
+________________________________________
+CI/CD Compromise
+Control future releases.
+________________________________________
+Full Organization Breach
+Worst-case scenario.
+________________________________________
+11. Pentester Perspective
+When testing application:
+Look for:
+________________________________________
+Outdated Components
+Check:
+•	JavaScript libraries 
+•	frameworks 
+•	plugins 
+________________________________________
+Public Version Disclosure
+Example:
+jquery-1.8.2.js
+Version visible.
+Research known vulnerabilities.
+________________________________________
+Docker Information
+Look for:
+•	exposed manifests 
+•	image metadata 
+________________________________________
+Build Artifacts
+Look for:
+package.json
+requirements.txt
+pom.xml
+package-lock.json
+These reveal dependencies.
+________________________________________
+12. Developer Perspective
+Ask:
+What third-party code am I trusting?
+________________________________________
+13. SBOM
+VERY IMPORTANT INTERVIEW TOPIC.
+SBOM = Software Bill of Materials
+________________________________________
+Think:
+Ingredients list for software.
+Contains:
+•	libraries 
+•	versions 
+•	dependencies 
+________________________________________
+Example
+React 18.0
+Express 4.0
+JWT Library 2.1
+Lodash 3.5
+________________________________________
+Why Important?
+When vulnerability discovered:
+You immediately know:
+Am I affected?
+________________________________________
+14. Signs of Supply Chain Problems
+________________________________________
+Unexpected Network Requests
+Package contacting strange servers.
+________________________________________
+New Unknown Dependency
+Recently added package.
+________________________________________
+Build Changes
+Unexpected CI/CD modifications.
+________________________________________
+Suspicious Update
+New package version behaving differently.
+________________________________________
+15. Prevention
+MOST IMPORTANT.
+________________________________________
+1. Dependency Scanning
+Scan packages for known CVEs.
+Tools:
+•	Dependabot 
+•	Snyk 
+•	Trivy 
+________________________________________
+2. Use Trusted Repositories
+Install packages only from trusted sources.
+________________________________________
+3. Verify Packages
+Check:
+•	signatures 
+•	maintainers 
+•	source 
+________________________________________
+4. Maintain SBOM
+Know every dependency.
+________________________________________
+5. Secure CI/CD
+Protect:
+•	secrets 
+•	pipelines 
+•	build servers 
+________________________________________
+6. Update Regularly
+Patch vulnerable libraries.
+________________________________________
+7. Principle of Least Privilege
+Dependencies should not have unnecessary permissions.
+________________________________________
+16. Interview Questions
+________________________________________
+Q1. What is Software Supply Chain?
+The ecosystem of third-party libraries, dependencies, build tools, repositories, and services used to develop and deliver software.
+________________________________________
+Q2. What is Software Supply Chain Failure?
+Security weaknesses introduced through dependencies, packages, CI/CD systems, or third-party components.
+________________________________________
+Q3. What is Dependency Confusion?
+An attacker publishes a package with the same name as an internal package, causing systems to install the malicious version.
+________________________________________
+Q4. What is Typosquatting?
+Creating malicious packages with names similar to popular packages to trick developers.
+________________________________________
+Q5. What is SBOM?
+Software Bill of Materials — a list of all software components and dependencies used in an application.
+________________________________________
+Q6. Give a famous example.
+Log4Shell (Log4j vulnerability)
+________________________________________
+17. Quick Pentester Cheat Sheet
+________________________________________
+Things to Look For
+package.json
+requirements.txt
+pom.xml
+composer.json
+package-lock.json
+Dockerfile
+________________________________________
+Common Risks
+Outdated libraries
+Dependency confusion
+Typosquatting
+Compromised CI/CD
+Malicious packages
+Vulnerable containers
+________________________________________
+Main Impacts
+Data Theft
+RCE
+Backdoors
+Credential Theft
+Supply Chain Compromise
+________________________________________
+Most Important Interview Line
+Software Supply Chain Failures occur when trusted third-party software components, dependencies, build systems, or update mechanisms introduce vulnerabilities or malicious code into an application.
+If you understand:
+1.	Vulnerable dependencies 
+2.	Dependency confusion 
+3.	Typosquatting 
+4.	CI/CD compromise 
+5.	SBOM
+
