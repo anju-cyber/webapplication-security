@@ -98,16 +98,6 @@ The confirmed security impact is:
 
 The severity of the impact depends on which files are accessible through the vulnerable functionality.
 
-### Impact Not Confirmed
-
-The following impacts should **not** be claimed as demonstrated unless separately verified:
-
-* Remote Code Execution (RCE)
-* Local File Inclusion (LFI)
-* Remote File Inclusion (RFI)
-* Creation or execution of malicious files
-
-These may be possible in specific application configurations, but they were not demonstrated by the evidence documented in this assessment.
 
 ## Root Cause
 
